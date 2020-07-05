@@ -2,12 +2,14 @@ package com.edu.ping.pingcrawler;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.web.socket.config.annotation.EnableWebSocket;
 
+@EnableWebSocket
 @SpringBootApplication
 public class PingCrawlerApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(PingCrawlerApplication.class, args);
-    }
+	public static void main(String[] args) {
+		SpringApplication.run(PingCrawlerApplication.class, args);
+	}
 
 }

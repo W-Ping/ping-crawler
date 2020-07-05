@@ -11,11 +11,22 @@ import java.util.Set;
  */
 @Data
 public class CrawlCondition {
-    private Set<PageUrl> pageUrls;
-    /**
-     *
-     */
-    private int numberOfCrawlers;
+	/**
+	 *
+	 */
+	private Set<PageUrl> pageUrls;
+	/**
+	 *
+	 */
+	private int numberOfCrawlers;
 
-    private boolean isBlocking;
+	/**
+	 *
+	 */
+	private boolean isBlocking;
+
+	/**
+	 *
+	 */
+	private boolean storeWebPage = true;
 }

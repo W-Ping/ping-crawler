@@ -9,6 +9,6 @@ import lombok.Data;
  */
 @Data
 public class PageUrl {
-    private String url;
-    private int docId;
+	private String url;
+	private int docId = -1;
 }

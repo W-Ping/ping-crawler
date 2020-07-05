@@ -6,4 +6,18 @@ package com.edu.ping.pingcrawler.exception;
  * @see
  */
 public class CrawlerRuntimeException extends RuntimeException {
+	/**
+	 * @param message
+	 */
+	public CrawlerRuntimeException(String message){
+		super(message);
+	}
+
+	/**
+	 * @param message
+	 * @param cause
+	 */
+	public CrawlerRuntimeException(String message, Throwable cause){
+		super(message, cause);
+	}
 }

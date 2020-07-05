@@ -1,11 +1,13 @@
 package com.edu.ping.pingcrawler.webcrawler;
 
+import com.edu.ping.pingcrawler.config.WebCrawlConfig;
+import com.edu.ping.pingcrawler.handler.PostgresCrawlerFactory;
 import com.edu.ping.pingcrawler.pojo.CrawlCondition;
 import com.edu.ping.pingcrawler.pojo.PageUrl;
 import edu.uci.ics.crawler4j.crawler.CrawlConfig;
 import edu.uci.ics.crawler4j.crawler.CrawlController;
 import edu.uci.ics.crawler4j.crawler.WebCrawler;
-import org.springframework.context.annotation.Configuration;
+import edu.uci.ics.crawler4j.robotstxt.RobotstxtConfig;
 
 import java.util.Set;
 
@@ -14,37 +16,69 @@ import java.util.Set;
  * @date 2020/7/3 19:11
  * @see
  */
-@Configuration
 public class WebCrawlController extends CrawlController {
-    /**
-     * @param config
-     * @param pageFetcher
-     * @param robotstxtServer
-     * @throws Exception
-     */
-    public WebCrawlController(CrawlConfig config, WebPageFetcher pageFetcher, WebRobotstxtServer robotstxtServer) throws Exception {
-        super(config, pageFetcher, robotstxtServer);
-    }
+	private final CrawlConfig crawlConfig;
+	private final WebPageFetcher pageFetcher;
+	private final WebRobotstxtServer robotstxtServer;
 
-    private void addPageUrl(Set<PageUrl> pageUrls) {
-        if (pageUrls != null && pageUrls.size() > 0) {
-            for (PageUrl pageUrl : pageUrls) {
-                this.addSeed(pageUrl.getUrl(), pageUrl.getDocId());
-            }
-        }
-    }
+	/**
+	 * @param webPageFetcher
+	 * @throws Exception
+	 */
+	public WebCrawlController(WebPageFetcher webPageFetcher) throws Exception {
+		this(webPageFetcher.getWebCrawlConfig().getCrawlConfig(), webPageFetcher, getWebRobotstxtServer(webPageFetcher));
+	}
 
-    /**
-     * @param crawlCondition
-     * @param tClass
-     * @param <T>
-     */
-    public <T extends WebCrawler> void start(CrawlCondition crawlCondition, Class<T> tClass) {
-        addPageUrl(crawlCondition.getPageUrls());
-        if (!crawlCondition.isBlocking()) {
-            this.startNonBlocking(tClass, crawlCondition.getNumberOfCrawlers());
-        } else {
-            this.start(tClass, crawlCondition.getNumberOfCrawlers());
-        }
-    }
+	/**
+	 * @param crawlConfig
+	 * @param pageFetcher
+	 * @param robotstxtServer
+	 * @throws Exception
+	 */
+	public WebCrawlController(CrawlConfig crawlConfig, WebPageFetcher pageFetcher, WebRobotstxtServer robotstxtServer) throws Exception {
+		super(crawlConfig, pageFetcher, robotstxtServer);
+		this.crawlConfig = crawlConfig;
+		this.pageFetcher = pageFetcher;
+		this.robotstxtServer = robotstxtServer;
+	}
+
+	private void addPageUrl(Set<PageUrl> pageUrls) {
+		if (pageUrls != null && pageUrls.size() > 0) {
+			for (PageUrl pageUrl : pageUrls) {
+				this.addSeed(pageUrl.getUrl(), pageUrl.getDocId());
+			}
+		}
+	}
+
+	/**
+	 * @param crawlCondition
+	 * @param postgresCrawlerFactory
+	 */
+	public void start(CrawlCondition crawlCondition, PostgresCrawlerFactory postgresCrawlerFactory) {
+		addPageUrl(crawlCondition.getPageUrls());
+//		if (!crawlCondition.isBlocking()) {
+//			this.startNonBlocking(postgresCrawlerFactory, crawlCondition.getNumberOfCrawlers());
+//		} else {
+//		}
+		this.start(postgresCrawlerFactory, crawlCondition.getNumberOfCrawlers(), false);
+	}
+
+	private static WebRobotstxtServer getWebRobotstxtServer(WebPageFetcher webPageFetcher) {
+		WebCrawlConfig webCrawlConfig = webPageFetcher.getWebCrawlConfig();
+		RobotstxtConfig robotstxtConfig = webCrawlConfig.getRobotstxtConfig();
+		return new WebRobotstxtServer(robotstxtConfig, webPageFetcher);
+	}
+
+	@Override
+	protected <T extends WebCrawler> void start(final WebCrawlerFactory<T> crawlerFactory, final int numberOfCrawlers, final boolean isBlocking) {
+		super.start(crawlerFactory, numberOfCrawlers, isBlocking);
+	}
+
+	/**
+	 * Wait until this crawling session finishes.
+	 */
+	@Override
+	public void waitUntilFinish() {
+		super.waitUntilFinish();
+	}
 }
